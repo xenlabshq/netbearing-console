@@ -1,0 +1,7 @@
+# Otomatik uretildi: webapp/app.py (identify_finish)
+# Eslesme MAC'e degil USB fiziksel port yoluna (ID_PATH) gore yapilir.
+
+SUBSYSTEM=="net", ACTION=="add", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:1.1:1.0", NAME="wlandf_front"
+SUBSYSTEM=="net", ACTION=="add", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:1.2:1.0", NAME="wlandf_right"
+SUBSYSTEM=="net", ACTION=="add", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:2.3:1.0", NAME="wlandf_back"
+SUBSYSTEM=="net", ACTION=="add", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:2.2:1.0", NAME="wlandf_left"

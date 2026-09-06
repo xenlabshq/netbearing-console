@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Wi-Fi Yön Bulucu</title>
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header>
+  <div class="header-title">
+    <span class="led"></span>
+    <div>
+      <h1 data-i18n="app.title">WiFi YÖN TESPİT SİSTEMİ</h1>
+      <div class="sub" data-i18n="app.subtitle">TAKTİK RDF ÜNİTESİ · 4 KANALLI ANTEN DİZİSİ</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div id="hud-clock">--:--:--</div>
+    <div id="lang-toggle">
+      <button data-lang="tr">TR</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+</header>
+
+<nav id="tabs">
+  <button class="tab-btn active" data-tab="setup" data-i18n="tab.setup">Kurulum</button>
+  <button class="tab-btn" data-tab="live" data-i18n="tab.live">Canlı Takip</button>
+  <button class="tab-btn" data-tab="calib" data-i18n="tab.calib">Kalibrasyon</button>
+  <button class="tab-btn" data-tab="pos" data-i18n="tab.pos">Konum</button>
+</nav>
+
+<main>
+
+<section id="tab-setup" class="tab-panel active">
+  <div class="card" id="status-card">
+    <h2 data-i18n="setup.status.title">1) Sistem Durumu</h2>
+    <ul id="status-list" class="checklist"></ul>
+    <button id="btn-refresh-status" class="secondary" data-i18n="setup.status.refresh">Durumu Yenile</button>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="setup.datastop.title">Veri Akışı Durdu mu? (gelişmiş)</h2>
+    <p class="muted" data-i18n-html="setup.datastop.desc"></p>
+    <button id="btn-usb-reset" class="primary" data-i18n="setup.datastop.reset_btn">Adaptörleri Yazılımsal Sıfırla</button>
+    <div id="usb-reset-result" class="muted"></div>
+    <details style="margin-top:10px">
+      <summary class="muted" style="cursor:pointer" data-i18n="setup.datastop.altdriver_summary">Sıfırlama yardımcı olmuyorsa: alternatif sürücü kur</summary>
+      <p class="muted" data-i18n="setup.datastop.altdriver_desc"></p>
+      <button id="btn-install-alt-driver" class="secondary" data-i18n="setup.datastop.altdriver_btn">Alternatif Sürücüyü Kur</button>
+      <div id="alt-driver-result" class="muted"></div>
+    </details>
+  </div>
+
+  <div class="card" id="identify-card">
+    <h2 data-i18n="setup.identify.title">2) Antenleri Yönlerine Göre Tanımla</h2>
+    <p class="muted" data-i18n="setup.identify.desc"></p>
+    <p class="muted" id="identify-mapped-note" hidden data-i18n="setup.identify.mapped_note"></p>
+    <button id="btn-identify-start" class="primary" data-i18n="setup.identify.start_btn">Tanımlamayı Başlat</button>
+    <div id="identify-progress"></div>
+  </div>
+
+  <div class="card" id="channel-card" hidden>
+    <h2 data-i18n="setup.channel.title">3) Kanal Seçimi ve Monitor Mode</h2>
+    <button id="btn-scan" class="secondary" data-i18n="setup.channel.scan_btn">2.4GHz Ağları Tara</button>
+    <div id="scan-results"></div>
+    <div class="row">
+      <label><span data-i18n="setup.channel.manual_label">Manuel kanal:</span> <input id="manual-channel" type="number" min="1" max="14" style="width:5em"></label>
+      <button id="btn-apply-channel" class="primary" data-i18n="setup.channel.apply_btn">Kanalı Uygula ve İzlemeyi Başlat</button>
+    </div>
+    <p id="channel-status" class="muted"></p>
+  </div>
+</section>
+
+<section id="tab-live" class="tab-panel">
+  <div class="card">
+    <h2 data-i18n="live.title">Canlı Yön Takibi</h2>
+    <p class="muted" data-i18n="live.desc"></p>
+    <div class="row">
+      <input id="live-search" data-i18n-placeholder="live.search_placeholder" placeholder="🔎 Ara: SSID veya MAC…" style="flex:1;min-width:200px">
+    </div>
+    <div id="focus-banner" class="row" hidden style="background:var(--panel-2);padding:8px 12px;border-radius:6px">
+      <span></span>
+      <button id="btn-clear-focus" class="secondary" data-i18n="live.clear_focus">Odağı Kaldır</button>
+    </div>
+
+    <div id="distance-calib-panel" class="step-card" hidden style="margin-top:8px">
+      <strong data-i18n="live.dist.title">Odaklanılan cihaz için mesafe kalibrasyonu</strong>
+      <p class="muted" style="margin:6px 0" data-i18n="live.dist.desc"></p>
+      <div class="row">
+        <label><span data-i18n="live.dist.current_label">Şu anki gerçek mesafe (m):</span> <input id="distance-calib-input" type="number" step="0.1" value="1" style="width:5em"></label>
+        <button id="btn-distance-calib-measure" class="primary" data-i18n="live.dist.measure_btn">Bu Mesafede Ölç</button>
+        <button id="btn-distance-calib-finish" class="secondary" data-i18n="live.dist.finish_btn">Mesafe Kalibrasyonunu Tamamla</button>
+      </div>
+      <div id="distance-calib-result" class="muted"></div>
+    </div>
+
+    <div class="live-layout">
+      <div style="flex:none;width:260px">
+        <div class="radar-wrap">
+          <svg id="radar" viewBox="-110 -110 220 220"></svg>
+        </div>
+        <div id="radar-focus-info" class="step-card" style="margin-top:10px;background:var(--panel-2)">
+          <span class="muted" data-i18n="live.focus_default">Odaklanmak için tablodan bir cihaz seçin.</span>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="devices-table">
+          <thead><tr>
+            <th data-i18n="live.table.mac">MAC</th><th data-i18n="live.table.ssid">SSID</th><th data-i18n="live.table.front">Ön</th><th data-i18n="live.table.right">Sağ</th><th data-i18n="live.table.back">Arka</th><th data-i18n="live.table.left">Sol</th>
+            <th data-i18n="live.table.bearing">Yön° (yumuşatılmış)</th><th data-i18n="live.table.compass">Pusula</th><th data-i18n="live.table.confidence">Güven</th><th data-i18n="live.table.status">Durum</th><th data-i18n="live.table.distance">~Mesafe</th><th data-i18n="live.table.last">Son</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:14px" data-i18n="live.stats_hint"></p>
+    <div class="table-wrap">
+      <table id="stats-table">
+        <thead><tr><th data-i18n="live.stats.th_dir">Yön</th><th data-i18n="live.stats.th_total">Toplam paket</th><th data-i18n="live.stats.th_dot11">802.11</th><th data-i18n="live.stats.th_mac">MAC var</th><th data-i18n="live.stats.th_radiotap">RadioTap var</th><th data-i18n="live.stats.th_rssi">RSSI var</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="tab-calib" class="tab-panel">
+  <div class="card">
+    <h2 data-i18n="calib.title">Anten Kazanç Paterni Kalibrasyonu</h2>
+    <p class="muted" data-i18n-html="calib.desc"></p>
+    <div class="row">
+      <label><span data-i18n="calib.target_label">Referans cihaz (opsiyonel):</span>
+        <select id="calib-target-select" style="min-width: 22em"><option value="" data-i18n="calib.target_auto">— otomatik algıla —</option></select>
+      </label>
+      <button id="btn-calib-refresh-targets" class="secondary" data-i18n="calib.refresh_btn">Ağları Yenile</button>
+      <label><span data-i18n="calib.duration_label">Ölçüm süresi:</span> <input id="calib-duration" type="number" value="12" style="width:4em"><span data-i18n="common.seconds">sn</span></label>
+    </div>
+    <p class="muted" data-i18n="calib.duration_desc"></p>
+    <p class="muted" id="calib-target-hint"></p>
+    <details style="margin: 6px 0">
+      <summary class="muted" style="cursor:pointer" data-i18n="calib.manual_summary">Belirli bir cihaz seçmek istiyorum / listede yok, elle MAC gir</summary>
+      <div class="row">
+        <label><span data-i18n="calib.manual_mac_label">Manuel MAC:</span> <input id="calib-mac" placeholder="AA:BB:CC:DD:EE:FF"></label>
+      </div>
+    </details>
+
+    <div class="row" id="calib-mode-select">
+      <button id="mode-simple" class="mode-btn active" data-i18n="calib.mode.simple">1) Basit (4 yön)</button>
+      <button id="mode-precise" class="mode-btn" data-i18n="calib.mode.precise">2) Hassas (özel açı)</button>
+      <button id="mode-solo" class="mode-btn" data-i18n="calib.mode.solo">3) Tak-Çıkar (tek anten)</button>
+    </div>
+
+    <div id="calib-simple">
+      <p class="muted" data-i18n="calib.simple.desc"></p>
+      <button id="btn-calib-simple-start" class="primary" data-i18n="calib.simple.start_btn">Basit Kalibrasyonu Başlat</button>
+      <div id="calib-simple-progress"></div>
+    </div>
+
+    <div id="calib-precise" hidden>
+      <p class="muted" data-i18n-html="calib.precise.desc"></p>
+      <div class="row" id="calib-precise-compass-buttons"></div>
+      <div id="calib-precise-result" class="muted"></div>
+      <button id="btn-calib-precise-finish" class="primary" style="margin-top:10px" data-i18n="calib.compute_btn">Kalibrasyonu Hesapla</button>
+      <div id="calib-precise-finish-result" class="muted"></div>
+
+      <details style="margin-top:10px">
+        <summary class="muted" style="cursor:pointer" data-i18n="calib.precise.advanced_summary">Gelişmiş: otomatik açı dizisi ile ölç</summary>
+        <div class="row">
+          <label><span data-i18n="calib.precise.step_label">Açı aralığı:</span> <input id="calib-step" type="number" value="30" style="width:4em">°</label>
+        </div>
+        <button id="btn-calib-start" class="primary" data-i18n="calib.precise.auto_start_btn">Otomatik Diziyle Başlat</button>
+        <div id="calib-progress"></div>
+      </details>
+    </div>
+
+    <div id="calib-solo" hidden>
+      <p class="muted" style="background:var(--panel-2);padding:8px 12px;border-radius:6px" data-i18n-html="calib.solo.warn"></p>
+      <p class="muted" data-i18n-html="calib.solo.desc"></p>
+      <button id="btn-solo-begin" class="primary" data-i18n="calib.solo.begin_btn">Sihirbazı Başlat</button>
+      <button id="btn-solo-reset" class="secondary" data-i18n="calib.solo.reset_btn">Baştan Başlat (tümünü sıfırla)</button>
+
+      <div id="solo-wizard" hidden style="margin-top:12px">
+        <div class="step-card done" style="background:var(--panel-2)">
+          <strong id="solo-status-line">-</strong>
+        </div>
+
+        <div id="solo-plug-step">
+          <button id="btn-solo-confirm-plug" class="primary" data-i18n="calib.solo.confirm_plug_btn">Taktım, Devam Et</button>
+        </div>
+
+        <div id="solo-measure-step" hidden>
+          <div class="row" id="solo-delta-buttons"></div>
+          <div id="solo-measure-result" class="muted"></div>
+          <button id="btn-solo-next-antenna" class="secondary" style="margin-top:8px" data-i18n="calib.solo.next_btn">Sıradaki Antene Geç →</button>
+          <button id="btn-solo-complete" class="primary" hidden style="margin-top:8px" data-i18n="calib.solo.complete_btn">Kalibrasyonu Tamamla</button>
+        </div>
+      </div>
+
+      <table id="solo-progress-table" style="margin-top:10px">
+        <thead><tr><th data-i18n="calib.solo.th_dir">Yön</th><th data-i18n="calib.solo.th_count">Ölçüm sayısı</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="solo-finish-result" class="muted"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="verify.title">4) Doğrulama (Kalibrasyonu Test Et)</h2>
+    <p class="muted" data-i18n-html="verify.desc"></p>
+    <div class="row">
+      <label><span data-i18n="verify.real_dir_label">Gerçek yön:</span> <span id="verify-angle-label" style="color:var(--accent);font-weight:600">Ön (0°)</span></label>
+    </div>
+    <div class="row" id="verify-compass-buttons"></div>
+    <button id="btn-verify" class="primary" style="margin-top:8px" data-i18n="verify.btn">Doğrula</button>
+    <div id="verify-result" class="muted" style="margin-top:8px"></div>
+  </div>
+</section>
+
+<section id="tab-pos" class="tab-panel">
+  <div class="card">
+    <h2 data-i18n="pos.title">Çoklu Nokta Konum Kesişimi (Üçgenleme)</h2>
+    <p class="muted" data-i18n="pos.desc"></p>
+    <div class="row">
+      <label><span data-i18n="pos.x_label">X (m):</span> <input id="station-x" type="number" value="0" style="width:5em"></label>
+      <label><span data-i18n="pos.y_label">Y (m):</span> <input id="station-y" type="number" value="0" style="width:5em"></label>
+      <label><span data-i18n="pos.duration_label">Süre:</span> <input id="station-duration" type="number" value="8" style="width:4em"><span data-i18n="common.seconds">sn</span></label>
+      <button id="btn-record-station" class="primary" data-i18n="pos.record_btn">Bu Konumda Kaydet</button>
+    </div>
+    <div id="station-log"></div>
+    <button id="btn-fix-targets" class="secondary" data-i18n="pos.calc_btn">Konumları Hesapla</button>
+    <div id="fix-results"></div>
+  </div>
+</section>
+
+</main>
+
+<script src="/i18n.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+scapy>=2.6
+numpy>=1.26
+rich>=13.0
+flask>=3.0
