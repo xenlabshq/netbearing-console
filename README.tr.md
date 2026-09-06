@@ -10,6 +10,18 @@ fazla noktaya tasinarak veya birden fazla istasyon kurularak — **konumunu**
 kestiren yazilimdir. Turkce/Ingilizce arayuz destegi ve dairesel Kalman
 filtresi tabanli yon yumusatma icerir.
 
+![Canli yon takibi](docs/screenshots/live-track.png)
+
+## Ekran goruntuleri
+
+| Kurulum | Kanal secimi |
+|---|---|
+| ![Kurulum sekmesi](docs/screenshots/setup.png) | ![Kanal secimi](docs/screenshots/channel-selection.png) |
+
+| Kalibrasyon | Konum (ucgenleme) |
+|---|---|
+| ![Kalibrasyon sekmesi](docs/screenshots/calibration.png) | ![Konum sekmesi](docs/screenshots/position.png) |
+
 ## Ozellikler
 
 - **Grafik arayuz** (Turkce/Ingilizce): kurulumdan canli takibe, kalibrasyona

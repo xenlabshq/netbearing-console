@@ -10,6 +10,18 @@ known points, or by combining multiple fixed stations — their **position**.
 It ships with full English/Turkish UI support and circular-Kalman-filter
 based bearing smoothing.
 
+![Live direction tracking](docs/screenshots/live-track.png)
+
+## Screenshots
+
+| Setup | Channel selection |
+|---|---|
+| ![Setup tab](docs/screenshots/setup.png) | ![Channel selection](docs/screenshots/channel-selection.png) |
+
+| Calibration | Position (triangulation) |
+|---|---|
+| ![Calibration tab](docs/screenshots/calibration.png) | ![Position tab](docs/screenshots/position.png) |
+
 ## Features
 
 - **Web-based control panel** (English/Turkish): setup, live tracking,
