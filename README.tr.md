@@ -10,21 +10,21 @@ fazla noktaya tasinarak veya birden fazla istasyon kurularak — **konumunu**
 kestiren yazilimdir. Turkce/Ingilizce arayuz destegi ve dairesel Kalman
 filtresi tabanli yon yumusatma icerir.
 
-![Canli yon takibi - coklu hedef](docs/screenshots/live-track-multi.png)
+![NetBearing-4X donanimi, NetBearing Console calisirken](docs/photos/device-with-console.jpg)
 
 ## Ekran goruntuleri
 
-| Canli takip (odaklanmis cihaz) | Kurulum |
+| Canli takip (coklu hedef) | Canli takip (odaklanmis cihaz) |
 |---|---|
-| ![Canli takip, odaklanmis cihaz](docs/screenshots/live-track.png) | ![Kurulum sekmesi](docs/screenshots/setup.png) |
+| ![Canli takip, coklu hedef](docs/screenshots/live-track-multi.png) | ![Canli takip, odaklanmis cihaz](docs/screenshots/live-track.png) |
 
-| Kanal secimi | Kalibrasyon |
+| Kurulum | Kalibrasyon |
 |---|---|
-| ![Kanal secimi](docs/screenshots/channel-selection.png) | ![Kalibrasyon sekmesi](docs/screenshots/calibration.png) |
+| ![Kurulum sekmesi](docs/screenshots/setup.png) | ![Kalibrasyon sekmesi](docs/screenshots/calibration.png) |
 
-| Konum (ucgenleme) | |
+| Kanal secimi | Konum (ucgenleme) |
 |---|---|
-| ![Konum sekmesi](docs/screenshots/position.png) | |
+| ![Kanal secimi](docs/screenshots/channel-selection.png) | ![Konum sekmesi](docs/screenshots/position.png) |
 
 ## Ozellikler
 
@@ -44,6 +44,8 @@ filtresi tabanli yon yumusatma icerir.
   otomatik referans alir (istenirse elle de secilebilir).
 
 ## Donanim gereksinimleri
+
+![NetBearing-4X anten dizisi, ustten gorunum](docs/photos/device-top.jpg)
 
 Referans donanim (**NetBearing-4X**) su parcalardan olusur:
 

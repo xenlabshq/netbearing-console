@@ -10,21 +10,21 @@ known points, or by combining multiple fixed stations — their **position**.
 It ships with full English/Turkish UI support and circular-Kalman-filter
 based bearing smoothing.
 
-![Live direction tracking - multiple targets](docs/screenshots/live-track-multi.png)
+![NetBearing-4X hardware running NetBearing Console](docs/photos/device-with-console.jpg)
 
 ## Screenshots
 
-| Live track (focused device) | Setup |
+| Live track (multiple targets) | Live track (focused device) |
 |---|---|
-| ![Live track, focused device](docs/screenshots/live-track.png) | ![Setup tab](docs/screenshots/setup.png) |
+| ![Live track, multiple targets](docs/screenshots/live-track-multi.png) | ![Live track, focused device](docs/screenshots/live-track.png) |
 
-| Channel selection | Calibration |
+| Setup | Calibration |
 |---|---|
-| ![Channel selection](docs/screenshots/channel-selection.png) | ![Calibration tab](docs/screenshots/calibration.png) |
+| ![Setup tab](docs/screenshots/setup.png) | ![Calibration tab](docs/screenshots/calibration.png) |
 
-| Position (triangulation) | |
+| Channel selection | Position (triangulation) |
 |---|---|
-| ![Position tab](docs/screenshots/position.png) | |
+| ![Channel selection](docs/screenshots/channel-selection.png) | ![Position tab](docs/screenshots/position.png) |
 
 ## Features
 
@@ -46,6 +46,8 @@ based bearing smoothing.
   pick one manually if you prefer).
 
 ## Hardware requirements
+
+![NetBearing-4X antenna array, top-down view](docs/photos/device-top.jpg)
 
 The reference hardware (**NetBearing-4X**) consists of:
 
