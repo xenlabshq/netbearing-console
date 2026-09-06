@@ -10,17 +10,21 @@ fazla noktaya tasinarak veya birden fazla istasyon kurularak — **konumunu**
 kestiren yazilimdir. Turkce/Ingilizce arayuz destegi ve dairesel Kalman
 filtresi tabanli yon yumusatma icerir.
 
-![Canli yon takibi](docs/screenshots/live-track.png)
+![Canli yon takibi - coklu hedef](docs/screenshots/live-track-multi.png)
 
 ## Ekran goruntuleri
 
-| Kurulum | Kanal secimi |
+| Canli takip (odaklanmis cihaz) | Kurulum |
 |---|---|
-| ![Kurulum sekmesi](docs/screenshots/setup.png) | ![Kanal secimi](docs/screenshots/channel-selection.png) |
+| ![Canli takip, odaklanmis cihaz](docs/screenshots/live-track.png) | ![Kurulum sekmesi](docs/screenshots/setup.png) |
 
-| Kalibrasyon | Konum (ucgenleme) |
+| Kanal secimi | Kalibrasyon |
 |---|---|
-| ![Kalibrasyon sekmesi](docs/screenshots/calibration.png) | ![Konum sekmesi](docs/screenshots/position.png) |
+| ![Kanal secimi](docs/screenshots/channel-selection.png) | ![Kalibrasyon sekmesi](docs/screenshots/calibration.png) |
+
+| Konum (ucgenleme) | |
+|---|---|
+| ![Konum sekmesi](docs/screenshots/position.png) | |
 
 ## Ozellikler
 

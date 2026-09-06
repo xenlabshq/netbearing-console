@@ -10,17 +10,21 @@ known points, or by combining multiple fixed stations — their **position**.
 It ships with full English/Turkish UI support and circular-Kalman-filter
 based bearing smoothing.
 
-![Live direction tracking](docs/screenshots/live-track.png)
+![Live direction tracking - multiple targets](docs/screenshots/live-track-multi.png)
 
 ## Screenshots
 
-| Setup | Channel selection |
+| Live track (focused device) | Setup |
 |---|---|
-| ![Setup tab](docs/screenshots/setup.png) | ![Channel selection](docs/screenshots/channel-selection.png) |
+| ![Live track, focused device](docs/screenshots/live-track.png) | ![Setup tab](docs/screenshots/setup.png) |
 
-| Calibration | Position (triangulation) |
+| Channel selection | Calibration |
 |---|---|
-| ![Calibration tab](docs/screenshots/calibration.png) | ![Position tab](docs/screenshots/position.png) |
+| ![Channel selection](docs/screenshots/channel-selection.png) | ![Calibration tab](docs/screenshots/calibration.png) |
+
+| Position (triangulation) | |
+|---|---|
+| ![Position tab](docs/screenshots/position.png) | |
 
 ## Features
 
