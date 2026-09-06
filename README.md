@@ -1,125 +1,137 @@
-# Azimuth — 4 Antenli Wi-Fi Yon Bulucu (RDF)
+*English | [Türkçe](README.tr.md)*
 
-TL-WN722N v2 adaptorlerinden 4 tanesiyle, silindirik govde uzerinde
-on/arka/sag/sol yonlere bakacak sekilde monte edilmis bir donanimla,
-tespit edilen Wi-Fi cihazlarinin **yonunu (bearing)** ve — cihaz birden
-fazla noktaya tasinarak veya birden fazla istasyon kurularak — **konumunu**
-kestiren yazilim. Turkce/Ingilizce arayuz destegi ve dairesel Kalman
-filtresi tabanli yon yumusatma icerir.
+# NetBearing Console — Software for the NetBearing-4X (4-Antenna WiFi Radio Direction Finder)
 
-## Ozellikler
+**NetBearing-4X** is the name of the hardware: four TL-WN722N v2 USB WiFi
+adapters mounted on a cylindrical body, facing front/right/back/left.
+**NetBearing Console** is the software that drives it, estimating the
+**bearing** of detected WiFi devices and — by moving the device to multiple
+known points, or by combining multiple fixed stations — their **position**.
+It ships with full English/Turkish UI support and circular-Kalman-filter
+based bearing smoothing.
 
-- **Grafik arayuz** (Turkce/Ingilizce): kurulumdan canli takibe, kalibrasyona
-  ve konum kesisimine kadar her sey tarayicidan, tikla-calistir seklinde.
-- **Dairesel Kalman filtresi** ile yon yumusatma: guven skoruna duyarli
-  (dusuk kaliteli okumalari daha az agirliklandirir), aykiri deger kapisi
-  (tek kotu ornekle sicramaz) ve "manevra tespiti" (gercek bir yon
-  degisikligini - anten fiziksel olarak cevrildiginde - yavas yakinsama
-  yerine hizla yakalar).
-- **Kendi kendini onaran izleme**: arka planda calisan bir bekci, veri akisi
-  duran antenleri otomatik olarak (USB seviyesinde) sifirlar; hangi yonun
-  duzenli geride kaldigini tespit edip ona rotasyonda daha fazla sure verir.
-- **3 farkli kalibrasyon modu** (basit/hassas/tak-cikar) + coklu-istasyon
-  ucgenleme ile yuksek dogruluklu konum kestirimi.
-- MAC adresi elle girmek ZORUNLU degil - sistem en guclu gorulen cihazi
-  otomatik referans alir (istenirse elle de secilebilir).
+## Features
 
-## Donanim gereksinimleri
+- **Web-based control panel** (English/Turkish): setup, live tracking,
+  calibration and position fixing are all click-and-run in the browser.
+- **Circular Kalman filter** for bearing smoothing: confidence-aware
+  (down-weights low-quality readings), outlier-gated (a single bad sample
+  can't throw it off), and "maneuver detection" (catches a genuine
+  reorientation — the antenna array physically rotated — quickly instead of
+  slowly converging toward it).
+- **Self-healing capture**: a background watchdog automatically resets (at
+  the USB level) any antenna whose data flow has stalled, and detects which
+  direction is chronically underperforming to give it extra dwell time in
+  the rotation.
+- **Three calibration modes** (simple / precise / single-antenna) plus
+  multi-station triangulation for high-accuracy position estimates.
+- No need to type a MAC address by hand — the system automatically uses
+  the strongest device currently in view as the reference (you can still
+  pick one manually if you prefer).
 
-- **4x TP-Link TL-WN722N v2/v3** USB Wi-Fi adaptoru (Realtek RTL8188EUS
-  cipseti). **v1** farkli bir cipsete (Atheros AR9271) sahiptir, bu proje
-  onunla test edilmedi.
-- Adaptorleri 90 derece araliklarla on/sag/arka/sol yonlere sabitleyecek bir
-  govde/mont (silindirik veya kare - onemli olan 4 antenin ayni noktada,
-  esit acilarla ve birbirine gore sabit kalmasi).
-- **USB hub uyarisi:** 4 adaptoru TEK bir USB hub'a baglarken hub'in kalitesi
-  onemlidir - detaylar icin asagidaki "Bilinen donanim/surucu kisitlari"
-  bolumune bakin.
-- Linux, guncel bir cekirdek (`rtl8xxxu` suruculu in-tree monitor mode
-  destegi onerilir - asagida detay var).
+## Hardware requirements
 
-## Grafik arayuz (onerilen kullanim sekli)
+The reference hardware (**NetBearing-4X**) consists of:
 
-Konsol komutlariyla ugrasmak istemiyorsaniz, tarayicida acilan bir web
-kontrol paneli var. Kurulumdan canli takibe kadar her sey buradan, tikla-
-calistir seklinde yapilir:
+- **4x TP-Link TL-WN722N v2/v3** USB WiFi adapters (Realtek RTL8188EUS
+  chipset). **v1** uses a different chipset (Atheros AR9271) and was not
+  tested with this project.
+- A body/mount that fixes the adapters 90° apart, facing front/right/back/
+  left (cylindrical or square — what matters is that all four antennas
+  share a common center, are evenly spaced, and stay fixed relative to each
+  other). Feel free to build your own enclosure; the software works with
+  any 4-antenna array.
+- **USB hub caveat:** hub quality matters when all 4 adapters share a
+  single USB hub — see "Known hardware/driver limitations" below for
+  details.
+- Linux, with a reasonably recent kernel (in-tree `rtl8xxxu` monitor-mode
+  support is recommended — details below).
+
+## Web UI (recommended way to use this)
+
+If you'd rather not touch the console, there's a browser-based control
+panel. Everything from setup to live tracking runs from here,
+click-and-run:
 
 ```bash
 ./start_gui.sh
 ```
 
-(Ilk calistirmada venv otomatik olusturup bagimliliklari kurar. Uygulamanin
-tamami - paket yakalama + web arayuzu - TEK surecte root olarak calisir;
-`pkexec` ile **bir kez** sifre sorulur, sonra tarayici otomatik ve YETKISIZ
-olarak acilir - root surec kendisi tarayici baslatmaz.) Uygulama menusune
-de bir kisayol eklendi: **"Wi-Fi Yön Bulucu"** ikonuna tiklayarak da
-baslatabilirsiniz (terminal acilmadan).
+(On first run it creates a venv and installs dependencies automatically.
+The whole application — packet capture + web UI — runs as a **single**
+root process; `pkexec` asks for your password **once**, then the browser
+opens automatically and unprivileged — the root process never launches a
+browser itself.) A shortcut was also added to your application menu:
+you can launch it by clicking the **"NetBearing Console"** icon (no
+terminal window needed).
 
-Arayuzde 4 sekme var:
-- **Kurulum:** sistem durumu, anten tanimlama, ag tarama ve kanal secimi
-  buradan tiklanarak yapilir. Sorun giderme icin USB yazilimsal sifirlama ve
-  alternatif surucu kurulumu da bu sekmede.
-- **Canlı Takip:** tespit edilen cihazlari tablo + canli "radar" gorunumunde
-  (yon cizgileri) gosterir; bir cihaza tiklayip odaklanabilirsiniz.
-- **Kalibrasyon:** anten kazanc paternini 3 farkli yontemle (basit/hassas/
-  tak-cikar) olcup hesaplar.
-- **Konum:** cok noktali (ucgenleme) konum kesisimi icin istasyon kayitlarini
-  alir ve sonucu hesaplar.
+The UI has 4 tabs:
+- **Setup:** system status, antenna identification, network scanning and
+  channel selection all happen here by clicking. USB software reset and
+  alternative driver install (for troubleshooting) are also on this tab.
+- **Live Track:** shows detected devices in a table plus a live "radar"
+  view (bearing lines); click a device to focus on just that one.
+- **Calibration:** measures and computes the antenna gain pattern via 3
+  different methods (simple / precise / single-antenna).
+- **Position:** takes multi-point (triangulation) station recordings and
+  computes the resulting position fix.
 
-Bu arayuz, asagida anlatilan `wifidf` python paketini perde arkasinda
-kullanir — istenirse ayni islemler asagidaki konsol komutlariyla da (elle,
-adim adim) yapilabilir.
+This UI uses the `wifidf` Python package described below under the hood —
+the same operations can also be done manually, step by step, via the
+console commands further down.
 
-Masaustu kisayolu (Terminal=false) hicbir konsol penceresi acmaz; bir sorun
-olursa once bir kez terminalden `./start_gui.sh` calistirip hata mesajini
-gorun.
+The desktop shortcut (Terminal=false) never opens a console window; if
+something goes wrong, first run `./start_gui.sh` once from a terminal to
+see the error message.
 
-**Mimari notu:** Bu uygulama tek kullanicili, kendi makinenizde calisan
-kisisel bir arac oldugu icin, paket yakalama + web sunucusu TEK bir root
-surecte birlesik. Bu, cok-kullanicili/paylasimli bir sistemde tercih
-edilecek bir tasarim OLMAZDI (root'ta calisan bir HTTP sunucusu, ayricalik
-ayirimi olmayan bir sistemde daha genis bir saldiri yuzeyi demektir) - ama
-burada pratiklik/guvenilirlik (tek surec = daha az "sureç birbirini
-bulamiyor" sinifi hata) bu ortamda dogru tercih.
+**Architecture note:** since this is a single-user, personal tool meant to
+run on your own machine, packet capture and the web server are combined
+into ONE root process. This would NOT be the right design for a
+multi-user/shared system (an HTTP server running as root, with no
+privilege separation, is a larger attack surface on a system like that) —
+but here, practicality/reliability (one process = fewer "processes can't
+find each other" bugs) is the right tradeoff for this environment.
 
-## Yontem (nasil calisir)
+## Method (how it works)
 
-Bu, amatör telsizcilikte "fox hunting" icin kullanilan **genlik
-karsilastirmali yon bulma (amplitude-comparison DF)** teknigidir:
+This is the **amplitude-comparison direction finding (DF)** technique used
+in amateur-radio "fox hunting":
 
-1. 4 anten ayni noktada, 90 derece araliklarla farkli yonlere bakar.
-2. Bir vericiden gelen sinyalin her antendeki RSSI'si, o antenin o yondeki
-   kazancina baglidir. Antenler yon-yonelimli (directional) oldugundan,
-   vericiye en yakin bakan antende RSSI en yuksek, tam ters yondekinde en
-   dusuk olur.
-3. Kalibrasyonla cikarilan anten kazanc paterni (`bearing.py`) kullanilarak,
-   4 RSSI degerine en iyi uyan varis acisi en-kucuk-kareler ile bulunur.
-4. **Tek istasyonda sadece yon (bearing) elde edilir, mesafe degil.**
-   Yuksek dogruluklu **konum** icin cihaz 2+ farkli (bilinen) noktaya
-   tasinir, her noktada bearing kaydedilir, ve bu dogrularin kesisimi
-   hesaplanir (`triangulate.py`) — gercek RDF/fox-hunting ekiplerinin
-   kullandigi standart yontem budur ve tek-istasyon RSSI-mesafe tahminine
-   gore cok daha dogrudur.
+1. 4 antennas share one location, 90° apart, each facing a different
+   direction.
+2. The RSSI a given transmitter produces on each antenna depends on that
+   antenna's gain in that direction. Since the antennas are directional,
+   the antenna facing closest to the transmitter reads the highest RSSI,
+   and the one facing directly away reads the lowest.
+3. Using the antenna gain pattern derived from calibration (`bearing.py`),
+   a least-squares search finds the arrival angle that best fits the 4
+   RSSI readings.
+4. **A single station only yields a bearing, not a distance.** For
+   high-accuracy **position**, move the device to 2+ different (known)
+   points, record a bearing at each, and compute the intersection of these
+   lines (`triangulate.py`) — this is the standard method used by real
+   RDF/fox-hunting teams, and it is far more accurate than single-station
+   RSSI-to-distance estimation.
 
-RSSI'dan doğrudan mesafe kestirimi de var (`distance.py`) ama bu **kaba** bir
-tahmindir (coklu yol yansimasi/ortam nedeniyle dogrulugu dusuktur); asil
-dogruluk kaynagi ucgenleme yontemidir.
+Direct RSSI-to-distance estimation also exists (`distance.py`), but it is a
+**rough** estimate (low accuracy due to multipath and environmental
+variation); the real source of accuracy is the triangulation method.
 
-## Donanim notu: TL-WN722N v2
+## Hardware note: TL-WN722N v2
 
-TL-WN722N **v1**, Atheros AR9271 cipseti kullanir ve Linux'ta cekirdek
-suruculeriyle (ath9k_htc) dogrudan monitor mode destekler. **v2/v3** ise
-Realtek RTL8188EUS cipseti kullanir. Bu genelde monitor mode + paket
-enjeksiyonu icin ek (out-of-tree) bir surucu gerektirir; `setup/install_driver.sh`
-bu surucuyu (aircrack-ng/rtl8188eus fork'u) DKMS ile kurar. **Ancak** yeni
-cekirdeklerde (bu makinede test edildi: cachyos, kernel 7.1.5) in-tree
-`rtl8xxxu` suruculu de bu adaptorler icin artik monitor mode destekliyor
-(`iw phy <phy> info` ciktisinda "monitor" listeleniyorsa ek surucu KURMANIZA
-GEREK YOK). Sadece pasif dinleme (RSSI okuma) yaptigimiz icin (paket
-enjeksiyonu gerekmiyor) cogu durumda in-tree surucu yeterlidir; monitor mode
-`iw` ile acilamiyorsa ancak o zaman `install_driver.sh`'i deneyin.
+TL-WN722N **v1** uses the Atheros AR9271 chipset and gets direct monitor
+mode support from in-tree Linux drivers (ath9k_htc). **v2/v3** use the
+Realtek RTL8188EUS chipset. This usually needs an additional (out-of-tree)
+driver for monitor mode + packet injection; `setup/install_driver.sh`
+installs that driver (an aircrack-ng/rtl8188eus fork) via DKMS. **However**,
+on newer kernels (tested on this machine: CachyOS, kernel 7.1.5) the
+in-tree `rtl8xxxu` driver now supports monitor mode for these adapters too
+(if `iw phy <phy> info` lists "monitor", you do NOT need to install the
+extra driver). Since we only do passive listening (RSSI reading — no
+packet injection needed), the in-tree driver is sufficient in most cases;
+only try `install_driver.sh` if monitor mode can't be enabled via `iw`.
 
-## Kurulum
+## Setup
 
 ```bash
 cd /home/xen/Projeler/wifi-df
@@ -127,64 +139,65 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**Onemli - sudo + venv:** `scapy` gibi paketler venv icine kurulur, ama
-`sudo python3 ...` calistirinca `sudo` venv'i gormezden gelip **sistem**
-python3'unu kullanir ve `ModuleNotFoundError: scapy` hatasi verir. Bu
-yuzden asagidaki tum `sudo python3 scripts/...` komutlarinda **venv'in tam
-yolunu** kullanin:
+**Important — sudo + venv:** packages like `scapy` are installed inside the
+venv, but running `sudo python3 ...` makes `sudo` ignore the venv and use
+the **system** python3, giving a `ModuleNotFoundError: scapy` error. So use
+the **full venv path** in every `sudo python3 scripts/...` command below:
 
 ```bash
 sudo .venv/bin/python3 scripts/scan.py
 ```
 
-(`setup/wizard.py` ve `setup/identify_antennas.py` bu soruna takilmaz,
-cunku onlar scapy kullanmiyor / wizard kendi ici sudo cagrilarini ayri
-komutlar olarak yapiyor.)
+(`setup/wizard.py` and `setup/identify_antennas.py` don't hit this issue,
+since they don't use scapy / the wizard runs its own sudo calls as
+separate commands.)
 
-### Hizli kurulum (onerilen): sihirbaz
+### Quick setup (recommended): the wizard
 
-Asagidaki 1-3 numarali manuel adimlarin tamamini kontrol edip (zaten
-yapilmissa atlayip) otomatiklestiren, her adimi zaman damgali olarak
-`logs/wizard_*.log` dosyasina kaydeden bir sihirbaz var:
+There's a wizard that checks and automates all of the manual steps 1–3
+below (skipping any that are already done), logging each step with a
+timestamp to `logs/wizard_*.log`:
 
 ```bash
 python3 setup/wizard.py
 ```
 
-Sirasiyla: Python bagimliliklarini kontrol eder → takili adaptor sayisini
-dogrular → anten/yon eslemesi yoksa `identify_antennas.py`'i baslatir (fiziksel
-adaptor takma adimlarinda sizden etkilesim ister) → udev kuralini kurup
-tetikler → cevredeki 2.4GHz aglari tarayip secmenizi ister → 4 antenin
-tamamini monitor mode'a alip secilen kanala kilitler. Sonunda kalibrasyon ve
-dashboard icin calistirmaniz gereken komutlari ekrana yazar.
+In order it: checks Python dependencies → verifies the number of plugged-in
+adapters → runs `identify_antennas.py` if antenna/direction mapping isn't
+done yet (asks you to interact during the physical plug-in steps) → installs
+and triggers the udev rule → scans nearby 2.4GHz networks and asks you to
+pick one → puts all 4 antennas into monitor mode locked to the chosen
+channel. At the end it prints the commands you need to run for calibration
+and the dashboard.
 
-Asagidaki 1-3 numarali adimlar sihirbazin perde arkasinda yaptiklarinin
-manuel dokumudur — sihirbaz calismazsa veya bir adimi elle tekrarlamak
-isterseniz kullanin.
+Steps 1–3 below are the manual writeup of what the wizard does behind the
+scenes — use them if the wizard doesn't work, or if you want to redo a
+step by hand.
 
-### 1) Surucu kurulumu (4 adaptor icin de gecerli, tek seferlik)
+### 1) Driver install (applies to all 4 adapters, one-time)
 
 ```bash
 bash setup/install_driver.sh
 ```
 
-Zaten `~/rtl8188eus` altinda bir surucu kaynagi varsa onu kullanir; yoksa
-klonlar. Kurulumdan sonra adaptorleri takip `dmesg | tail` ile `8188eu`
-modulunun yuklendigini dogrulayin.
+Uses an existing driver source under `~/rtl8188eus` if there is one;
+otherwise clones it. After installing, plug in an adapter and confirm the
+`8188eu` module loaded with `dmesg | tail`.
 
-### 2) Antenleri yonlerine gore tanimlama
+### 2) Identify antennas by direction
 
-Adaptorler USB'ye hangi sirayla takilirsa takilsin `wlan0`, `wlan1`, ...
-gibi ongorulemeyen isimler alir. Her adaptoru o an taktiginiz fiziksel yone
-(on/sag/arka/sol) eslestirip kalici arayuz adi (`wlandf_front` vb.) uretmek
-icin:
+Whatever order the adapters get plugged into USB in, they get unpredictable
+names like `wlan0`, `wlan1`, ... To map each adapter to the physical
+direction you're currently plugging it into and generate a persistent
+interface name (`wlandf_front` etc.):
 
 ```bash
 sudo python3 setup/identify_antennas.py
 ```
 
-Script sirayla "on adaptoru tak", "sag adaptoru tak" diye soracak. Sonunda
-iki dosya uretir; ekrandaki komutlarla kurun:
+The script will ask, in turn, "plug in the front adapter", "plug in the
+right adapter", etc. At the end it generates two files; install them with
+the printed commands:
 
 ```bash
 sudo cp setup/99-wifi-df.rules /etc/udev/rules.d/
@@ -194,172 +207,177 @@ sudo udevadm control --reload-rules
 sudo udevadm trigger --action=add -s net
 ```
 
-(`--action=add` onemli: varsayilan `trigger` "degisiklik" olayi gonderir ve
-isim degistirme kurali calismaz. Bu da isi gormezse adaptorleri cikarip
-tekrar takin.) Bu adimdan sonra `data/device_config.json` otomatik olusturulur.
+(`--action=add` matters: the default `trigger` sends a "change" event and
+the renaming rule won't run. If that still doesn't work, unplug and replug
+the adapters.) After this step, `data/device_config.json` is generated
+automatically.
 
-**Neden MAC degil de USB port yolu (ID_PATH)?** Bu adaptorlerde
-NetworkManager gizlilik amacli olarak her takista **rastgele bir MAC**
-atayabiliyor (donanimin gercek/kalici MAC'i sabit kalsa da, arayuze
-gorunen adres degisir). Bu yuzden isim eslemesi MAC'e degil, adaptorun
-kapsulde hangi fiziksel USB porta kablolandigina (`ID_PATH`, degismez)
-gore yapilir — antenleri ilk tanimlamadan sonra ayni fiziksel USB
-portlarina takili tutmaya devam edin. `99-wifi-df-unmanaged.conf` ise bu 4
-arayuzu NetworkManager'in yonetiminden tamamen cikarir; boylece hem MAC
-rastgelestirmesi durur hem de NM'in kanal/monitor-mode ayarlariyla
-catismasi onlenir.
+**Why USB port path (ID_PATH) instead of MAC?** On these adapters,
+NetworkManager can assign a **random MAC** on every plug-in for privacy
+reasons (even though the hardware's real/persistent MAC stays the same, the
+address the interface shows changes). So the name mapping is keyed not to
+the MAC, but to which physical USB port the adapter is wired to in the
+enclosure (`ID_PATH`, which is immutable) — keep the antennas plugged into
+the same physical USB ports after the initial identification. The
+`99-wifi-df-unmanaged.conf` file takes these 4 interfaces entirely out of
+NetworkManager's management, which both stops MAC randomization and
+prevents NM from fighting with the channel/monitor-mode settings.
 
-### 3) Monitor mode + kanal kilitleme
+### 3) Monitor mode + channel lock
 
 ```bash
-sudo bash setup/monitor_mode.sh 6   # 6 = dinlenecek Wi-Fi kanali
+sudo bash setup/monitor_mode.sh 6   # 6 = the WiFi channel to listen on
 ```
 
-Not: 4 anten de **ayni kanalda** dinlemelidir (yon karsilastirmasi ancak
-esanli, ayni kanaldaki okumalarla anlamlidir). Hedefin kanalini once
-`scripts/scan.py` ile (herhangi bir arayuzu gecici olarak farkli kanallara
-tarayarak) ya da `iw scan` ile tespit edin.
+Note: all 4 antennas must listen on the **same channel** (bearing
+comparison only makes sense with simultaneous, same-channel readings).
+Find the target's channel first, either with `scripts/scan.py` (by
+temporarily scanning any one interface across channels) or with `iw scan`.
 
-## Kalibrasyon (zorunlu, dogruluk icin kritik)
+## Calibration (required, critical for accuracy)
 
-Kazanc paterni kalibre edilmeden varsayilan (kaba) bir patern kullanilir;
-gercek olcum icin kendi antenlerinizle kalibrasyon yapin:
+Without calibrating the gain pattern, a default (rough) pattern is used;
+for real-world accuracy, calibrate with your own antennas:
 
 ```bash
-sudo .venv/bin/python3 scripts/scan.py       # once referans MAC'i bulun (orn. telefon hotspot)
+sudo .venv/bin/python3 scripts/scan.py       # first find a reference MAC (e.g. a phone hotspot)
 sudo .venv/bin/python3 scripts/run_calibration.py --mac AA:BB:CC:DD:EE:FF --step 30 --duration 5
 ```
 
-Referans vericiyi (bilinen MAC'li bir telefon/hotspot) cihazdan sabit bir
-yaricapta tutup script'in istedigi acilara (varsayilan 30 derece araliklarla,
-0=on referans, saat yonunde) sirayla yerlestirin. Sonuc
-`data/calibration/gain_pattern.json` dosyasina kaydedilir.
+Hold the reference transmitter (a phone/hotspot with a known MAC) at a
+fixed radius from the device and place it, in turn, at the angles the
+script asks for (30° steps by default, 0 = front reference, clockwise). The
+result is saved to `data/calibration/gain_pattern.json`.
 
-Algoritmanin donanimsiz dogrulamasi icin (sentetik veriyle):
+To verify the algorithm without any hardware (using synthetic data):
 
 ```bash
 python3 -m pytest tests/ -v
 ```
 
-## Kullanim
+## Usage
 
-### Canli yon takibi (dashboard)
+### Live bearing tracking (dashboard)
 
 ```bash
 sudo .venv/bin/python3 scripts/run_dashboard.py
 ```
 
-Tespit edilen tum cihazlari, yon-basina RSSI'yi, tahmini bearing/pusula
-yonunu ve guven skorunu canli tabloda gosterir.
+Shows all detected devices, per-direction RSSI, the estimated bearing/
+compass direction and confidence score in a live table.
 
-### Konum kesisimi (ucgenleme) — yuksek dogruluk icin
+### Position fix (triangulation) — for high accuracy
 
-Cihazi bilinen (x, y) metre konumlarina tasiyip her noktada kaydedin:
+Move the device to known (x, y) meter positions and record at each one:
 
 ```bash
-sudo .venv/bin/python3 scripts/record_station.py 0 0 --duration 8      # 1. konum
-# cihazi tasiyin (orn. 20 metre doguya)...
-sudo .venv/bin/python3 scripts/record_station.py 20 0 --duration 8     # 2. konum
+sudo .venv/bin/python3 scripts/record_station.py 0 0 --duration 8      # station 1
+# move the device (e.g. 20 meters east)...
+sudo .venv/bin/python3 scripts/record_station.py 20 0 --duration 8     # station 2
 ```
 
-**Onemli:** her istasyonda cihazin "on" referansi ayni mutlak yone (orn.
-gercek Kuzey, pusula ile hizalanarak) bakmalidir; aksi halde bearing'ler
-ortak koordinat sistemine oturmaz.
+**Important:** the device's "front" reference must face the same absolute
+direction (e.g. true North, aligned with a compass) at every station;
+otherwise the bearings won't share a common coordinate frame.
 
-Sonra tum hedeflerin konum tahminini hesaplayin:
+Then compute the position estimate for all targets:
 
 ```bash
 python3 scripts/fix_targets.py
 ```
 
-## Dogruluk ve sinirlamalar
+## Accuracy and limitations
 
-- **Yon (bearing):** kalibre edilmis 4 antenle, sabit/gurultusuz kosullarda
-  birkac derece mertebesinde hata beklenir (bkz. `tests/test_bearing.py`
-  sentetik dogrulama). Coklu yol yansimasi (indoor multipath) hatayi artirir.
-- **Tek istasyon mesafesi (RSSI'dan):** dusuk dogruluk, sadece kaba fikir
-  icin kullanin.
-- **Ucgenlenmis konum (2+ istasyon):** en dogru yontem; istasyonlar
-  arasindaki aci farki ne kadar buyukse (idealde ~90 derece civari) kesisim
-  o kadar keskin/dogru olur. Istasyonlar hemen hemen ayni dogrultuda ise
-  kesisim belirsizlesir.
+- **Bearing:** with 4 calibrated antennas, under static/low-noise
+  conditions, expect error on the order of a few degrees (see the
+  synthetic verification in `tests/test_bearing.py`). Multipath (indoor
+  reflections) increases the error.
+- **Single-station distance (from RSSI):** low accuracy, use only as a
+  rough estimate.
+- **Triangulated position (2+ stations):** the most accurate method; the
+  larger the angular difference between stations (ideally around ~90°),
+  the sharper/more accurate the intersection. If the stations are nearly
+  collinear, the intersection becomes poorly conditioned.
 
-### Bilinen donanim/surucu kisitlari
+### Known hardware/driver limitations
 
-Bu projeyi baska bir makinede (farkli USB hub, farkli cekirdek surumu)
-calistiran herkes asagidaki iki kisitla karsilasabilir. Ikisi de yazilimsal
-olarak (kismen) telafi edildi ama donanim/surucu seviyesinde tam olarak
-ortadan kaldirilamaz - bu yuzden acikca belgeleniyor.
+Anyone running this project on a different machine (different USB hub,
+different kernel version) may run into the two limitations below. Both are
+(partially) mitigated in software but can't be fully eliminated at the
+hardware/driver level — so they're documented clearly here.
 
-**1) rtl8xxxu + 4 es zamanli ornek.** Linux'un dahili `rtl8xxxu` suruculu,
-RTL8188EUS tabanli 4 adaptoru AYNI ANDA monitor modda calistirinca zaman
-zaman bazi adaptorlerin veri teslimini sessizce durdurdugu (hata/istisna
-vermeden) gozlemlendi - bu, guc kaynagi (harici beslemeli USB hub ile bile),
-thread sayisi ya da yakalama mimarisinden (tek thread/coklu thread/rotasyonlu)
-BAGIMSIZ, tekrarlanabilir sekilde dogrulandi. Tek bir antenin izole calismasi
-ise HER ZAMAN guvenilir oldu - bu yuzden proje varsayilan olarak antenleri es
-zamanli degil ROTASYONLA dinler (bkz. `capture.py` dokstring'i) ve arka
-planda calisan bir **bekci (watchdog)** paket sayaclarini surekli izleyip,
-bir/iki anten "takilirsa" sadece o antenleri (TUM izlemeyi kesmeden) otomatik
-USB seviyesinde sifirlar; cogu/tumu takilirsa tam bir sifirlama yapar.
+**1) rtl8xxxu + 4 simultaneous instances.** Running 4 RTL8188EUS-based
+adapters on Linux's built-in `rtl8xxxu` driver in monitor mode AT THE SAME
+TIME was observed to occasionally, silently stop data delivery on some
+adapters (no error/exception) — this was verified repeatedly, INDEPENDENT
+of power source (even with a powered external USB hub), thread count, or
+capture architecture (single-thread / multi-thread / rotation). A single
+antenna running in isolation was ALWAYS reliable — so by default this
+project listens to the antennas in ROTATION rather than simultaneously
+(see the `capture.py` docstring), and a background **watchdog** continuously
+monitors packet counters; if one or two antennas "stall", it automatically
+resets just those antennas at the USB level (without interrupting the
+whole tracking session); if most/all stall, it does a full reset.
 
-**2) Paylasimli USB hub bant genisligi darbogazi.** 4 adaptor de TEK bir USB
-hub'a (ozellikle Full-Speed/12Mbit, tek Transaction Translator'lu, ucuz/
-pasif bir hub'a) baglandiginda, hub'in port'lar arasi zamanlama davranisi
-BIR yonu digerlerine gore sistematik olarak ac birakabilir - o antenin
-radyosu paket alsa bile (surucu seviyesinde `/proc/net/dev` sayaclari normal
-buyur), veri USB uzerinden bilgisayara ayni verimlilikte ulasmaz. Bunu
-telafi etmek icin `capture.py`, her yonun son birkac turdaki gercek paket/
-saniye hizini olcup, grup ortalamasinin belirgin altinda kalan yone rotasyon
-sirasinda otomatik olarak daha fazla dinleme suresi verir (ust sinirli,
-digerlerini geciktirmeden). **Oneri:** mumkunse 4 adaptoru TEK bir ucuz
-hub yerine (a) anakartin ayri fiziksel USB kok/host denetleyicilerine
-(root hub) dagitarak, veya (b) kaliteli, harici beslemeli bir USB 3.0
-hub uzerinden baglayin - Full-Speed tek-TT hub'lara gore gozle gorulur
-sekilde daha iyi/daha tutarli sonuc verir.
+**2) Shared USB hub bandwidth bottleneck.** When all 4 adapters share a
+SINGLE USB hub (especially a cheap/passive Full-Speed/12Mbit hub with a
+single Transaction Translator), the hub's port-scheduling behavior can
+systematically starve ONE direction relative to the others — even if that
+antenna's radio is receiving packets fine (driver-level `/proc/net/dev`
+counters grow normally), the data doesn't reach the computer over USB with
+the same efficiency. To compensate, `capture.py` measures each direction's
+actual packets/second rate over the last few rotation cycles and
+automatically gives extra dwell time (capped, without delaying the others)
+to any direction that falls noticeably below the group average.
+**Recommendation:** where possible, connect the 4 adapters either (a)
+spread across separate physical USB root/host controllers on the
+motherboard, or (b) through a quality, externally-powered USB 3.0 hub —
+both give noticeably better/more consistent results than a cheap
+single-TT Full-Speed hub.
 
-Iki kisit da devam ederse:
-1. Kurulum sekmesindeki "Adaptörleri Yazılımsal Sıfırla"yı elle deneyin.
-2. Kalibrasyon → "Tak-Çıkar" modunu kullanin (tek anten izolasyonu, bu
-   sinirlardan hic etkilenmez).
-3. `setup/install_alt_driver` (rtl8188eus, aircrack-ng) ile alternatif
-   surucuyu deneyin - ama cok yeni cekirdeklerde (6.12+) derleme yamalari
-   gerekebilir (bkz. Kurulum sekmesindeki "Alternatif Sürücüyü Kur").
-4. "Canlı Takip" sekmesindeki tanilama sayaclarinda (`rate_pps`, `dwell_s`)
-   hangi yonun surekli geride kaldigini gorebilirsiniz - capture_stats API
-   yaniti bu degerleri de icerir.
+If either limitation persists:
+1. Try "Reset Adapters (Software)" manually on the Setup tab.
+2. Use the Calibration → "Unplug-Plug" mode (single-antenna isolation,
+   unaffected by either limitation).
+3. Try the alternative driver via `setup/install_alt_driver` (rtl8188eus,
+   aircrack-ng) — but very new kernels (6.12+) may need build patches (see
+   "Install Alternative Driver" on the Setup tab).
+4. The diagnostic counters on the "Live Track" tab (`rate_pps`, `dwell_s`)
+   show which direction is chronically falling behind — the
+   `capture_stats` API response includes these values too.
 
-## Kullanim kapsami
+## Scope of use
 
-Bu arac pasif olarak halka acik Wi-Fi yayinlarini (beacon/probe/veri
-cerceveleri) dinler; herhangi bir agа baglanmaya veya sifre kirmaya
-calismaz. Yine de belirli bir kisiye ait cihazi izlemek/konumlandirmak
-gizlilik ve yerel mevzuata tabi olabilir — yalnizca sahibi oldugunuz
-agları/cihazları test etmek, yetkili guvenlik/RF calismalari veya kendi
-ekipmanınızı (orn. kayip cihaz, parazit kaynagi) bulmak icin kullanin.
+This tool passively listens to publicly broadcast WiFi frames
+(beacon/probe/data frames); it does not attempt to connect to any network
+or crack any password. That said, tracking/locating a specific person's
+device may still be subject to privacy laws and local regulations — only
+use it to test networks/devices you own, for authorized security/RF work,
+or to locate your own equipment (e.g. a lost device, a source of
+interference).
 
-## Proje yapisi
+## Project layout
 
 ```
-start_gui.sh        Grafik arayuzu baslatan launcher (pkexec ile root baslatir, tarayiciyi ayri/yetkisiz acar)
-webapp/             Web tabanli kontrol paneli (onerilen kullanim)
-  app.py               Tek surecli Flask uygulamasi (root; paket yakalama + web arayuzu bir arada)
-  static/                index.html, app.js, app.css (4 sekmeli SPA)
-wifidf/            Cekirdek Python paketi
-  config.py           Yon<->arayuz esleme, aci tanimlari
-  capture.py          Scapy tabanli 802.11/RSSI yakalama (4 arayuz, esanli)
-  aggregator.py        MAC bazinda ornek birlestirme + gurultu azaltma
-  bearing.py           Genlik-karsilastirmali yon bulma algoritmasi
-  calibrate.py          Kalibrasyon rutini
-  distance.py            Kaba RSSI->mesafe modeli
-  triangulate.py           Coklu-istasyon bearing kesisimi
-  station_log.py           Ucgenleme icin istasyon/bearing kaydi
-  tracker.py                Capture+aggregate+bearing ana dongusu
-  dashboard.py                rich tabanli canli terminal arayuzu
-scripts/            Calistirilabilir CLI giris noktalari
-setup/              Surucu kurulum, anten tanimlama, monitor mode scriptleri
-  wizard.py           Tum kurulum adimlarini kontrol eden/otomatiklestiren, loglayan sihirbaz
-data/               Kalibrasyon ve calisma-zamani verileri (git'e girmez)
-logs/               wizard.py'nin zaman damgali calisma loglari (git'e girmez)
-tests/              Donanimsiz sentetik dogrulama testleri
+start_gui.sh        Launcher for the web UI (starts root via pkexec, opens the browser separately/unprivileged)
+webapp/             Web-based control panel (recommended way to use this)
+  app.py               Single-process Flask app (root; packet capture + web UI combined)
+  static/                index.html, app.js, app.css (4-tab SPA)
+wifidf/            Core Python package
+  config.py           Direction<->interface mapping, angle definitions
+  capture.py          Scapy-based 802.11/RSSI capture (4 interfaces, rotated)
+  aggregator.py        Per-MAC sample aggregation + noise reduction
+  bearing.py           Amplitude-comparison bearing-finding algorithm
+  calibrate.py          Calibration routine
+  distance.py            Rough RSSI->distance model
+  triangulate.py           Multi-station bearing intersection
+  station_log.py           Station/bearing log for triangulation
+  tracker.py                Main capture+aggregate+bearing loop
+  dashboard.py                rich-based live terminal UI
+scripts/            Executable CLI entry points
+setup/              Driver install, antenna identification, monitor mode scripts
+  wizard.py           Wizard that checks/automates/logs all setup steps
+data/               Calibration and runtime data (not tracked in git)
+logs/               Timestamped run logs from wizard.py (not tracked in git)
+tests/              Hardware-free synthetic verification tests
 ```
