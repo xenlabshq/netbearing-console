@@ -18,7 +18,7 @@ REFRESH_HZ = 4
 
 
 def _build_table(devices) -> Table:
-    table = Table(title="Wi-Fi Yon Bulucu - Canli Tarama", expand=True)
+    table = Table(title="NetBearing Console - Canli Tarama", expand=True)
     table.add_column("MAC")
     table.add_column("SSID")
     for d in DIRECTIONS:

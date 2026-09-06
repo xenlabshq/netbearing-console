@@ -8,9 +8,9 @@
 
 const I18N = {
   tr: {
-    "app.title": "WiFi YÖN TESPİT SİSTEMİ",
-    "app.subtitle": "TAKTİK RDF ÜNİTESİ · 4 KANALLI ANTEN DİZİSİ",
-    "page.title": "WiFi Yön Bulucu",
+    "app.title": "NETBEARING CONSOLE",
+    "app.subtitle": "NETBEARING-4X TAKTİK RDF ÜNİTESİ · 4 KANALLI ANTEN DİZİSİ",
+    "page.title": "NetBearing Console",
 
     "tab.setup": "KURULUM",
     "tab.live": "CANLI TAKİP",
@@ -246,9 +246,9 @@ const I18N = {
   },
 
   en: {
-    "app.title": "WiFi DIRECTION FINDING SYSTEM",
-    "app.subtitle": "TACTICAL RDF UNIT · 4-CHANNEL ANTENNA ARRAY",
-    "page.title": "WiFi Direction Finder",
+    "app.title": "NETBEARING CONSOLE",
+    "app.subtitle": "NETBEARING-4X TACTICAL RDF UNIT · 4-CHANNEL ANTENNA ARRAY",
+    "page.title": "NetBearing Console",
 
     "tab.setup": "SETUP",
     "tab.live": "LIVE TRACK",

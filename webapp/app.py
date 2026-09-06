@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Wi-Fi Yon Bulucu - tek surecli uygulama.
+"""NetBearing Console - tek surecli uygulama.
 
 Onceden bu uygulama iki ayri surec olarak calisiyordu: yetkisiz bir Flask
 sunucusu (server.py) ve root'ta calisan bir yardimci daemon (helperd.py),

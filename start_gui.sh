@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Wi-Fi Yon Bulucu - grafik arayuzu baslatir (tarayicida acilir).
+# NetBearing Console - grafik arayuzu baslatir (tarayicida acilir).
 #
 # Uygulamanin tamami (paket yakalama + web sunucusu) TEK surecte, root
 # olarak calisir (pkexec ile bir kez sifre sorulur). Tarayici ise AYRI ve
